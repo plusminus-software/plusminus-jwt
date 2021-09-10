@@ -4,7 +4,6 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
 import software.plusminus.authentication.AuthenticationParameters;
 
@@ -15,7 +14,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest
-@ActiveProfiles("test")
 public class JwtIntegrationTest {
 
     @Autowired
@@ -26,10 +24,11 @@ public class JwtIntegrationTest {
     @Test
     public void generator_GeneratesParseableToken() {
         //given
-        AuthenticationParameters user = new AuthenticationParameters();
-        user.setUsername("some_username");
-        user.setRoles(Stream.of("role1", "role2")
-                .collect(Collectors.toSet()));
+        AuthenticationParameters user = AuthenticationParameters.builder()
+                .username("some_username")
+                .roles(Stream.of("role1", "role2")
+                        .collect(Collectors.toSet()))
+                .build();
         //when
         String token = generator.generateAccessToken(user);
         AuthenticationParameters parsed = parser.parseToken(token);

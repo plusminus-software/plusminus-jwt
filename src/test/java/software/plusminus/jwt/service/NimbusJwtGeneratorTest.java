@@ -23,10 +23,11 @@ public class NimbusJwtGeneratorTest {
     @Test
     public void generate_ReturnsGeneratedToken() throws IOException {
         //given
-        AuthenticationParameters permission = new AuthenticationParameters();
-        permission.setUsername("some_username");
-        permission.setRoles(Stream.of("role1", "role2")
-                .collect(Collectors.toSet()));
+        AuthenticationParameters permission = AuthenticationParameters.builder()
+                .username("some_username")
+                .roles(Stream.of("role1", "role2")
+                        .collect(Collectors.toSet()))
+                .build();
         //when
         String token = generator.generateAccessToken(permission);
         //then

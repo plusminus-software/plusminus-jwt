@@ -79,10 +79,11 @@ public class NimbusJwtParser implements JwtParser {
             throw new SecurityException(e);
         }
         
-        AuthenticationParameters parameters = new AuthenticationParameters();
-        parameters.setUsername(claims.getSubject());
-        parameters.setRoles(roles);
-        parameters.setOtherParameters(claims.getClaims());
+        AuthenticationParameters parameters = AuthenticationParameters.builder()
+                .username(claims.getSubject())
+                .roles(roles)
+                .otherParameters(claims.getClaims())
+                .build();
         return parameters;
     }
 
