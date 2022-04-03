@@ -25,10 +25,7 @@ public class CryptographyConfig {
             NoSuchAlgorithmException, InvalidKeySpecException {
 
         try (InputStream is = jwtProperties.getPrivateKey().getInputStream()) {
-            String key = IOUtils.toString(is, UTF8.getJavaName())
-                    .replaceAll("\\n", "")
-                    .replace("-----BEGIN PRIVATE KEY-----", "")
-                    .replace("-----END PRIVATE KEY-----", "");
+            String key = getKey(is);
             PKCS8EncodedKeySpec keySpecPkcs8 = new PKCS8EncodedKeySpec(
                     Base64.getDecoder().decode(key));
             return keyFactory().generatePrivate(keySpecPkcs8);
@@ -40,11 +37,7 @@ public class CryptographyConfig {
             NoSuchAlgorithmException, InvalidKeySpecException {
 
         try (InputStream is = jwtProperties.getPublicKey().getInputStream()) {
-            String key = IOUtils.toString(is, UTF8.getJavaName())
-                    .replaceAll("\\n", "")
-                    .replace("-----BEGIN PUBLIC KEY-----", "")
-                    .replace("-----END PUBLIC KEY-----", "");
-
+            String key = getKey(is);
             X509EncodedKeySpec keySpecX509 = new X509EncodedKeySpec(
                     Base64.getDecoder().decode(key));
             return (RSAPublicKey) keyFactory().generatePublic(keySpecX509);
@@ -54,5 +47,15 @@ public class CryptographyConfig {
     @Bean
     public KeyFactory keyFactory() throws NoSuchAlgorithmException {
         return KeyFactory.getInstance("RSA");
+    }
+
+    private String getKey(InputStream is) throws IOException {
+        return IOUtils.toString(is, UTF8.getJavaName())
+                .replace("\n", "")
+                .replace("\r", "")
+                .replace("-----BEGIN PUBLIC KEY-----", "")
+                .replace("-----END PUBLIC KEY-----", "")
+                .replace("-----BEGIN PRIVATE KEY-----", "")
+                .replace("-----END PRIVATE KEY-----", "");
     }
 }
