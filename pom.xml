@@ -52,11 +52,6 @@
         </dependency>
         <dependency>
             <groupId>software.plusminus</groupId>
-            <artifactId>plusminus-utils</artifactId>
-            <version>1.0-SNAPSHOT</version>
-        </dependency>
-        <dependency>
-            <groupId>software.plusminus</groupId>
             <artifactId>plusminus-authentication</artifactId>
             <version>1.0-SNAPSHOT</version>
         </dependency>
@@ -74,6 +69,12 @@
         <dependency>
             <groupId>software.plusminus</groupId>
             <artifactId>plusminus-test</artifactId>
+            <version>1.0-SNAPSHOT</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>software.plusminus</groupId>
+            <artifactId>plusminus-jwt-test</artifactId>
             <version>1.0-SNAPSHOT</version>
             <scope>test</scope>
         </dependency>

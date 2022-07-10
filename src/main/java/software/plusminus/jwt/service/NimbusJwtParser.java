@@ -14,14 +14,16 @@ import com.nimbusds.jwt.SignedJWT;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.lang.Nullable;
 import org.springframework.util.ObjectUtils;
-import software.plusminus.authentication.AuthenticationParameters;
+import software.plusminus.security.Security;
 
 import java.text.ParseException;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 @Slf4j
 public class NimbusJwtParser implements JwtParser {
@@ -37,15 +39,16 @@ public class NimbusJwtParser implements JwtParser {
 
     @Override
     @SuppressWarnings("npathcomplexity")
-    public AuthenticationParameters parseToken(String text) {
-        if (text == null) {
+    public Security parseToken(String token) {
+        if (token == null) {
             log.warn("no authorisation token.");
             return null;
         }
 
+        token = removeBearerIfPresent(token);
         SignedJWT jwt;
         try {
-            jwt = SignedJWT.parse(text);
+            jwt = SignedJWT.parse(token);
         } catch (ParseException e) {
             log.warn("incorrect access token format.");
             return null;
@@ -79,12 +82,11 @@ public class NimbusJwtParser implements JwtParser {
             throw new SecurityException(e);
         }
         
-        AuthenticationParameters parameters = AuthenticationParameters.builder()
+        return Security.builder()
                 .username(claims.getSubject())
                 .roles(roles)
-                .otherParameters(claims.getClaims())
+                .others(getOthers(claims))
                 .build();
-        return parameters;
     }
 
     private boolean checkHeaderAndKeyId(JWSHeader header) {
@@ -139,6 +141,18 @@ public class NimbusJwtParser implements JwtParser {
     
     private boolean checkIssuer(@Nullable String issuer) {
         return ObjectUtils.nullSafeEquals(issuer, issuerService.currentIssuer());
+    }
+    
+    private Map<String, String> getOthers(JWTClaimsSet claims) {
+        return claims.getClaims().entrySet().stream()
+                .collect(Collectors.toMap(Map.Entry::getKey, e -> e.getValue().toString()));
+    }
+    
+    private String removeBearerIfPresent(String token) {
+        if (token.startsWith("Bearer ") || token.startsWith("bearer ")) {
+            return token.substring(7);
+        }
+        return token;
     }
 
 }

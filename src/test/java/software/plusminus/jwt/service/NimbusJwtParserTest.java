@@ -18,7 +18,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
-import software.plusminus.authentication.AuthenticationParameters;
+import software.plusminus.security.Security;
 
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
@@ -102,23 +102,23 @@ public class NimbusJwtParserTest {
 
     @Test
     public void testUnauthorized() {
-        AuthenticationParameters parameters = parser.parseToken(null);
-        assertThat(parameters).isNull();
+        Security security = parser.parseToken(null);
+        assertThat(security).isNull();
     }
 
     @Test
     public void testIncorrectApiKey() {
-        AuthenticationParameters parameters = parser.parseToken("foo");
-        assertThat(parameters).isNull();
+        Security security = parser.parseToken("foo");
+        assertThat(security).isNull();
     }
 
     @Test
     public void testValidAccessToken() throws JOSEException {
-        AuthenticationParameters parameters = parser.parseToken(accessToken);
+        Security security = parser.parseToken(accessToken);
 
-        assertThat(parameters).isNotNull();
-        assertThat(parameters.getUsername()).isEqualTo("test");
-        assertThat(parameters.getRoles()).contains("test-role");
+        assertThat(security).isNotNull();
+        assertThat(security.getUsername()).isEqualTo("test");
+        assertThat(security.getRoles()).contains("test-role");
     }
 
     @Test
@@ -129,8 +129,8 @@ public class NimbusJwtParserTest {
     }
 
     private void testInvalidAccessToken(String token) throws JOSEException {
-        AuthenticationParameters parameters = parser.parseToken(token);
-        assertThat(parameters).isNull();
+        Security security = parser.parseToken(token);
+        assertThat(security).isNull();
     }
 
     @Test
@@ -140,9 +140,9 @@ public class NimbusJwtParserTest {
         String authorization = jws(
                 claims, rsakey(keysHolder.getPublic(), "foo")).serialize();
 
-        AuthenticationParameters parameters = parser.parseToken(authorization);
+        Security security = parser.parseToken(authorization);
 
-        assertThat(parameters).isNull();
+        assertThat(security).isNull();
     }
 
     @Test
@@ -153,11 +153,11 @@ public class NimbusJwtParserTest {
                 expirationTime(60));
         String token = jws(claims, publicKey).serialize();
 
-        AuthenticationParameters parameters = parser.parseToken(token);
+        Security security = parser.parseToken(token);
 
-        assertThat(parameters).isNotNull();
-        assertThat(parameters.getUsername()).isEqualTo("test");
-        assertThat(parameters.getRoles()).isEmpty();
+        assertThat(security).isNotNull();
+        assertThat(security.getUsername()).isEqualTo("test");
+        assertThat(security.getRoles()).isEmpty();
     }
 
     @Test
@@ -169,9 +169,9 @@ public class NimbusJwtParserTest {
                 publicKey)
                 .serialize();
 
-        AuthenticationParameters parameters = parser.parseToken(authorization);
+        Security security = parser.parseToken(authorization);
 
-        assertThat(parameters).isNull();
+        assertThat(security).isNull();
     }
 
     private JWSObject jws(JWTClaimsSet claims, RSAKey rsaPublicKey)

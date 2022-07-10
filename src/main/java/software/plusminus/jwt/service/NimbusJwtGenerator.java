@@ -9,7 +9,7 @@ import com.nimbusds.jwt.JWTClaimsSet;
 import com.nimbusds.jwt.SignedJWT;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import software.plusminus.authentication.AuthenticationParameters;
+import software.plusminus.security.Security;
 
 import java.security.PrivateKey;
 import java.time.OffsetDateTime;
@@ -26,17 +26,17 @@ public class NimbusJwtGenerator implements JwtGenerator {
     private IssuerService issuerService;
 
     @Override
-    public String generateAccessToken(AuthenticationParameters parameters) {
+    public String generateAccessToken(Security security) {
         JWSSigner signer = new RSASSASigner(privateKey);
         OffsetDateTime issuedAt = OffsetDateTime.now();
         JWTClaimsSet.Builder claimsSetBuilder = new JWTClaimsSet.Builder()
-                .subject(parameters.getUsername())
+                .subject(security.getUsername())
                 .issuer(issuerService.currentIssuer())
                 .issueTime(Date.from(issuedAt.toInstant()))
                 .expirationTime(Date.from(issuedAt.plusYears(JWT_EXPIRATION_YEARS)
                                 .toInstant()))
-                .claim("roles", parameters.getRoles());
-        parameters.getOtherParameters().forEach(claimsSetBuilder::claim);
+                .claim("roles", security.getRoles());
+        security.getOthers().forEach(claimsSetBuilder::claim);
         SignedJWT signedJwt = new SignedJWT(new JWSHeader(JWSAlgorithm.RS256), claimsSetBuilder.build());
         try {
             signedJwt.sign(signer);

@@ -7,4 +7,3 @@ import org.springframework.context.annotation.Configuration;
 @ComponentScan("software.plusminus.jwt")
 public class JwtAutoconfig {
 }
-

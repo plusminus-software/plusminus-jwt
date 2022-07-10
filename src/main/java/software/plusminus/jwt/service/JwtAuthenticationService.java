@@ -2,11 +2,12 @@ package software.plusminus.jwt.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import software.plusminus.authentication.AuthenticationParameters;
-import software.plusminus.authentication.AuthenticationService;
+import software.plusminus.authentication.model.TokenPlace;
+import software.plusminus.authentication.service.Authenticator;
+import software.plusminus.security.Security;
 
 @Service
-public class JwtAuthenticationService implements AuthenticationService {
+public class JwtAuthenticationService implements Authenticator {
     
     @Autowired
     private JwtGenerator generator;
@@ -14,12 +15,20 @@ public class JwtAuthenticationService implements AuthenticationService {
     private JwtParser parser;
     
     @Override
-    public AuthenticationParameters parseToken(String token) {
+    public TokenPlace tokenPlace() {
+        return TokenPlace.builder()
+                .headersKey("Authorization")
+                .cookiesKey("JWT-TOKEN")
+                .build();
+    }
+    
+    @Override
+    public Security authenticate(String token) {
         return parser.parseToken(token);
     }
     
     @Override
-    public String generateToken(AuthenticationParameters parameters) {
-        return generator.generateAccessToken(parameters);
+    public String provideToken(Security security) {
+        return generator.generateAccessToken(security);
     }
 }

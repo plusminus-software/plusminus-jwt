@@ -7,7 +7,7 @@ import org.springframework.core.io.Resource;
 
 @Data
 @Configuration
-@ConfigurationProperties("jwt")
+@ConfigurationProperties("security.jwt")
 public class JwtProperties {
     
     private Resource privateKey;

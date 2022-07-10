@@ -1,10 +1,10 @@
 package software.plusminus.jwt.service;
 
-import software.plusminus.authentication.AuthenticationParameters;
+import software.plusminus.security.Security;
 
 @FunctionalInterface
 public interface JwtParser {
 
-    AuthenticationParameters parseToken(String token);
+    Security parseToken(String token);
 
 }
