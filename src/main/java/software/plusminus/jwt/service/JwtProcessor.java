@@ -3,13 +3,13 @@ package software.plusminus.jwt.service;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 import software.plusminus.security.Security;
-import software.plusminus.security.service.TokenService;
+import software.plusminus.security.service.TokenProcessor;
 
 import javax.annotation.Nullable;
 
 @AllArgsConstructor
 @Service
-public class JwtAuthenticationService implements TokenService {
+public class JwtProcessor implements TokenProcessor {
     
     private JwtGenerator generator;
     private JwtParser parser;
