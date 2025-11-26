@@ -1,34 +1,27 @@
 package software.plusminus.jwt.service;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
-import software.plusminus.authentication.model.TokenPlace;
-import software.plusminus.authentication.service.Authenticator;
 import software.plusminus.security.Security;
+import software.plusminus.security.service.TokenService;
 
+import javax.annotation.Nullable;
+
+@AllArgsConstructor
 @Service
-public class JwtAuthenticationService implements Authenticator {
+public class JwtAuthenticationService implements TokenService {
     
-    @Autowired
     private JwtGenerator generator;
-    @Autowired
     private JwtParser parser;
-    
+
+    @Nullable
     @Override
-    public TokenPlace tokenPlace() {
-        return TokenPlace.builder()
-                .headersKey("Authorization")
-                .cookiesKey("JWT-TOKEN")
-                .build();
-    }
-    
-    @Override
-    public Security authenticate(String token) {
+    public Security getSecurity(String token) {
         return parser.parseToken(token);
     }
     
     @Override
-    public String provideToken(Security security) {
+    public String getToken(Security security) {
         return generator.generateAccessToken(security);
     }
 }

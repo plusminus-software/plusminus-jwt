@@ -1,20 +1,16 @@
 package software.plusminus.jwt.service;
 
 import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.context.junit4.SpringRunner;
 import software.plusminus.security.Security;
+import software.plusminus.test.IntegrationTest;
 
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-@RunWith(SpringRunner.class)
-@SpringBootTest
-public class JwtIntegrationTest {
+public class JwtIntegrationTest extends IntegrationTest {
 
     @Autowired
     private JwtGenerator generator;

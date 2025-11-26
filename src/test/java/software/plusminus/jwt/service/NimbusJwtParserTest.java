@@ -13,12 +13,9 @@ import com.nimbusds.jose.jwk.RSAKey;
 import com.nimbusds.jose.jwk.source.ImmutableJWKSet;
 import com.nimbusds.jwt.JWTClaimsSet;
 import org.apache.commons.lang3.StringUtils;
-import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.context.junit4.SpringRunner;
 import software.plusminus.security.Security;
+import software.plusminus.test.IntegrationTest;
 
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
@@ -31,15 +28,13 @@ import java.util.Date;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 
-@RunWith(SpringRunner.class)
-@SpringBootTest
 @SuppressWarnings("classdataabstractioncoupling")
-public class NimbusJwtParserTest {
+public class NimbusJwtParserTest extends IntegrationTest {
 
     private final KeyPair keysHolder;
     private final RSAKey publicKey;
     private final JWSSigner signer;
-    private final IssuerService issuerService;
+    private final IssuerContext issuerContext;
 
     private NimbusJwtParser parser;
     private String accessToken;
@@ -50,7 +45,7 @@ public class NimbusJwtParserTest {
         keysHolder = generator.generateKeyPair();
         signer = new RSASSASigner(keysHolder.getPrivate());
         publicKey = rsakey(keysHolder.getPublic(), "keyId");
-        issuerService = mock(IssuerService.class);
+        issuerContext = mock(IssuerContext.class);
     }
 
     private static Date expirationTime(int offset) {
@@ -91,11 +86,12 @@ public class NimbusJwtParserTest {
         return builder.build();
     }
 
-    @Before
-    public void setUp() throws JOSEException {
+    @Override
+    public void beforeEach() {
+        super.beforeEach();
         parser = new NimbusJwtParser(
                 new ImmutableJWKSet<>(new JWKSet(publicKey)),
-                issuerService);
+                issuerContext);
         JWTClaimsSet claims = claims("test-role", "some_domain", expirationTime(60));
         accessToken = jws(claims, publicKey).serialize();
     }
@@ -113,7 +109,7 @@ public class NimbusJwtParserTest {
     }
 
     @Test
-    public void testValidAccessToken() throws JOSEException {
+    public void testValidAccessToken() {
         Security security = parser.parseToken(accessToken);
 
         assertThat(security).isNotNull();
@@ -122,19 +118,19 @@ public class NimbusJwtParserTest {
     }
 
     @Test
-    public void testInvalidAccessToken() throws JOSEException {
+    public void testInvalidAccessToken() {
         testInvalidAccessToken(accessToken.toUpperCase());
         testInvalidAccessToken(" ." + accessToken);
         testInvalidAccessToken("Vendor " + accessToken);
     }
 
-    private void testInvalidAccessToken(String token) throws JOSEException {
+    private void testInvalidAccessToken(String token) {
         Security security = parser.parseToken(token);
         assertThat(security).isNull();
     }
 
     @Test
-    public void testAccessTokenWithUnknownKey() throws JOSEException {
+    public void testAccessTokenWithUnknownKey() {
         JWTClaimsSet claims = claims(
                 "test", "some_domain", expirationTime(60));
         String authorization = jws(
@@ -146,7 +142,7 @@ public class NimbusJwtParserTest {
     }
 
     @Test
-    public void testAccessTokenWithoutRoles() throws JOSEException {
+    public void testAccessTokenWithoutRoles() {
 
         JWTClaimsSet claims = claims(null,
                 "_some_domain",
@@ -161,7 +157,7 @@ public class NimbusJwtParserTest {
     }
 
     @Test
-    public void testJwtWithExpiredTime() throws JOSEException {
+    public void testJwtWithExpiredTime() {
         String authorization = jws(
                 claims("point-observation",
                         "some_domain",
@@ -174,8 +170,7 @@ public class NimbusJwtParserTest {
         assertThat(security).isNull();
     }
 
-    private JWSObject jws(JWTClaimsSet claims, RSAKey rsaPublicKey)
-            throws JOSEException {
+    private JWSObject jws(JWTClaimsSet claims, RSAKey rsaPublicKey) {
         JWSObject jws = new JWSObject(
                 new JWSHeader(
                         JWSAlgorithm.RS512,
@@ -192,8 +187,11 @@ public class NimbusJwtParserTest {
                         null,
                         null),
                 new Payload(claims.toJSONObject()));
-        jws.sign(signer);
+        try {
+            jws.sign(signer);
+        } catch (JOSEException e) {
+            throw new IllegalArgumentException(e);
+        }
         return jws;
     }
-
 }

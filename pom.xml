@@ -10,7 +10,7 @@
 
     <parent>
         <groupId>software.plusminus</groupId>
-        <artifactId>plusminus-opensource</artifactId>
+        <artifactId>plusminus-parent-public</artifactId>
         <version>1.0-SNAPSHOT</version>
         <relativePath/>
     </parent>
@@ -47,10 +47,6 @@
 
     <dependencies>
         <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-web</artifactId>
-        </dependency>
-        <dependency>
             <groupId>software.plusminus</groupId>
             <artifactId>plusminus-authentication</artifactId>
             <version>1.0-SNAPSHOT</version>
@@ -65,6 +61,17 @@
             <artifactId>nimbus-jose-jwt</artifactId>
             <version>5.1</version>
         </dependency>
+        <!-- Force BouncyCastle to a Java 8–compatible version -->
+        <dependency>
+            <groupId>org.bouncycastle</groupId>
+            <artifactId>bcprov-jdk15on</artifactId>
+            <version>1.68</version>
+        </dependency>
+        <dependency>
+            <groupId>org.bouncycastle</groupId>
+            <artifactId>bcpkix-jdk15on</artifactId>
+            <version>1.68</version>
+        </dependency>
         <!-- Test -->
         <dependency>
             <groupId>software.plusminus</groupId>
@@ -72,11 +79,27 @@
             <version>1.0-SNAPSHOT</version>
             <scope>test</scope>
         </dependency>
-        <dependency>
-            <groupId>software.plusminus</groupId>
-            <artifactId>plusminus-jwt-test</artifactId>
-            <version>1.0-SNAPSHOT</version>
-            <scope>test</scope>
-        </dependency>
     </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-gpg-plugin</artifactId>
+                <version>1.6</version>
+                <configuration>
+                    <skip>true</skip>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>sign-artifacts</id>
+                        <phase>verify</phase>
+                        <goals>
+                            <goal>sign</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
 </project>

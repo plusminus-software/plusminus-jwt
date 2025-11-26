@@ -11,6 +11,7 @@ import com.nimbusds.jose.jwk.RSAKey;
 import com.nimbusds.jose.jwk.source.JWKSource;
 import com.nimbusds.jwt.JWTClaimsSet;
 import com.nimbusds.jwt.SignedJWT;
+import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.lang.Nullable;
 import org.springframework.util.ObjectUtils;
@@ -25,17 +26,12 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+@AllArgsConstructor
 @Slf4j
 public class NimbusJwtParser implements JwtParser {
 
-    private final JWKSource<? extends com.nimbusds.jose.proc.SecurityContext> jwkSource;
-    private final IssuerService issuerService;
-
-    public NimbusJwtParser(JWKSource<? extends com.nimbusds.jose.proc.SecurityContext> jwkSource,
-                           IssuerService issuerService) {
-        this.jwkSource = jwkSource;
-        this.issuerService = issuerService;
-    }
+    private JWKSource<? extends com.nimbusds.jose.proc.SecurityContext> jwkSource;
+    private IssuerContext issuerContext;
 
     @Override
     @SuppressWarnings("npathcomplexity")
@@ -140,7 +136,7 @@ public class NimbusJwtParser implements JwtParser {
     }
     
     private boolean checkIssuer(@Nullable String issuer) {
-        return ObjectUtils.nullSafeEquals(issuer, issuerService.currentIssuer());
+        return ObjectUtils.nullSafeEquals(issuer, issuerContext.get());
     }
     
     private Map<String, String> getOthers(JWTClaimsSet claims) {
@@ -154,5 +150,4 @@ public class NimbusJwtParser implements JwtParser {
         }
         return token;
     }
-
 }

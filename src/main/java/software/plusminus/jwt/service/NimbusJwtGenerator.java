@@ -7,7 +7,7 @@ import com.nimbusds.jose.JWSSigner;
 import com.nimbusds.jose.crypto.RSASSASigner;
 import com.nimbusds.jwt.JWTClaimsSet;
 import com.nimbusds.jwt.SignedJWT;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Component;
 import software.plusminus.security.Security;
 
@@ -15,15 +15,14 @@ import java.security.PrivateKey;
 import java.time.OffsetDateTime;
 import java.util.Date;
 
+@AllArgsConstructor
 @Component
 public class NimbusJwtGenerator implements JwtGenerator {
 
     private static final int JWT_EXPIRATION_YEARS = 100;
 
-    @Autowired
     private PrivateKey privateKey;
-    @Autowired
-    private IssuerService issuerService;
+    private IssuerContext issuerContext;
 
     @Override
     public String generateAccessToken(Security security) {
@@ -31,7 +30,7 @@ public class NimbusJwtGenerator implements JwtGenerator {
         OffsetDateTime issuedAt = OffsetDateTime.now();
         JWTClaimsSet.Builder claimsSetBuilder = new JWTClaimsSet.Builder()
                 .subject(security.getUsername())
-                .issuer(issuerService.currentIssuer())
+                .issuer(issuerContext.get())
                 .issueTime(Date.from(issuedAt.toInstant()))
                 .expirationTime(Date.from(issuedAt.plusYears(JWT_EXPIRATION_YEARS)
                                 .toInstant()))
