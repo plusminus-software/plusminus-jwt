@@ -81,7 +81,7 @@ public class NimbusJwtParser implements JwtParser {
         return Security.builder()
                 .username(claims.getSubject())
                 .roles(roles)
-                .others(getOthers(claims))
+                .parameters(getParameters(claims))
                 .build();
     }
 
@@ -139,7 +139,7 @@ public class NimbusJwtParser implements JwtParser {
         return ObjectUtils.nullSafeEquals(issuer, issuerContext.get());
     }
     
-    private Map<String, String> getOthers(JWTClaimsSet claims) {
+    private Map<String, String> getParameters(JWTClaimsSet claims) {
         return claims.getClaims().entrySet().stream()
                 .collect(Collectors.toMap(Map.Entry::getKey, e -> e.getValue().toString()));
     }

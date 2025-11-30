@@ -35,7 +35,7 @@ public class NimbusJwtGenerator implements JwtGenerator {
                 .expirationTime(Date.from(issuedAt.plusYears(JWT_EXPIRATION_YEARS)
                                 .toInstant()))
                 .claim("roles", security.getRoles());
-        security.getOthers().forEach(claimsSetBuilder::claim);
+        security.getParameters().forEach(claimsSetBuilder::claim);
         SignedJWT signedJwt = new SignedJWT(new JWSHeader(JWSAlgorithm.RS256), claimsSetBuilder.build());
         try {
             signedJwt.sign(signer);
